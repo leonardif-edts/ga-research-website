@@ -5,6 +5,7 @@ dummy_data = [
 ]
 
 import os
+import json
 from flask import Flask
 from flask import render_template, url_for, make_response, request, flash, redirect
 
@@ -24,6 +25,9 @@ def get_utm(response):
 
         campaign = args.get("utm_campaign", "")
         response.set_cookie("utm_campaign", campaign)
+
+        utm = {"utm_source": source, "utm_medium": medium, "utm_campaign": campaign}
+        response.set_cookie("utm", json.dumps(utm))
         
     return response
 
