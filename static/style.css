@@ -1,0 +1,12 @@
+.card-preview-img {
+  object-fit: cover;
+  height: 250px;
+  width: 100%;
+}
+
+.product-preview-img {
+  object-fit: cover;
+  height: 500px;
+  width: 100%;
+  border: 5px solid black;
+}
