@@ -4,10 +4,15 @@ dummy_data = [
     {"id": 3, "name": "Gadget C", "description": "Sample Description Text", "price": 500000, "img": "gadgets.jpg"}
 ]
 
+import os
+import json
 from flask import Flask
-from flask import render_template, url_for, make_response, request
+from flask import render_template, url_for, make_response, request, flash, redirect
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.urandom(32)
+
+from module.forms import TransactionForm
 
 def get_utm(response):
     args = request.args
@@ -20,6 +25,9 @@ def get_utm(response):
 
         campaign = args.get("utm_campaign", "")
         response.set_cookie("utm_campaign", campaign)
+
+        utm = {"utm_source": source, "utm_medium": medium, "utm_campaign": campaign}
+        response.set_cookie("utm", json.dumps(utm))
         
     return response
 
@@ -36,11 +44,21 @@ def product(product_id):
     product = product[0] if (product) else None
     return render_template("product.html", product = product)
 
+@app.route("/transaction/<product_id>", methods=["GET", "POST"])
+def transaction(product_id):
+    product = list(filter(lambda prd: prd["id"] == int(product_id), dummy_data))
+    product = product[0] if (product) else None
+
+    form = TransactionForm()
+    if (form.validate_on_submit()):
+        flash("Transaction Sucessfull!", "success")
+        return redirect(url_for("home"))
+    return render_template("transaction.html", product = product, form = form)
+
 @app.route("/cookie")
 def get_cookie():
     cookie = request.cookies
     return cookie
-
 
 if __name__ == "__main__":
     app.run(debug=True)
